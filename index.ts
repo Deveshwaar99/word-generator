@@ -1,18 +1,21 @@
+import type { KVNamespace } from '@cloudflare/workers-types'
+import { wordInstance } from './generator'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { wordIntance } from './generator'
 
-const app = new Hono()
+type Bindings = {
+  WORDS: KVNamespace
+}
+const app = new Hono<{ Bindings: Bindings }>()
 
 app.use(cors())
 
-app.get('/', c => {
+app.get('/', async c => {
   try {
-    const word = wordIntance.getTodaysWord()
+    const word = await wordInstance.getTodaysWord(c)
     if (!word) {
       throw new Error('Word is invalid')
     }
-
     return c.json({ word })
   } catch (error) {
     console.error('[--GET WORD ERROR--]', error)

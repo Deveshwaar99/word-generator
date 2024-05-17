@@ -1,4 +1,7 @@
+import { type KVNamespace } from '@cloudflare/workers-types'
+
 import { words } from './words'
+import type { Context } from 'hono'
 
 class WordGenerator {
   private static instance: WordGenerator
@@ -14,19 +17,17 @@ class WordGenerator {
     return WordGenerator.instance
   }
 
-  getTodaysWord() {
-    if (!this.wordHash) {
-      const wordHash = this.generateWordHash()
-      return this.todaysWord
+  async getTodaysWord(c: Context) {
+    this.wordHash = await c.env.WORDS.get('HASH')
+
+    const [date, word] = this.wordHash.split('_')
+
+    this.todaysWord = word
+
+    if (date !== new Date().toLocaleDateString('en-GB')) {
+      this.generateWordHash()
+      await c.env.WORDS.put('HASH', this.wordHash)
     }
-
-    const [date] = this.wordHash.split('_')
-
-    if (date === new Date().toLocaleDateString('en-GB')) {
-      return this.todaysWord
-    }
-
-    this.generateWordHash()
     return this.todaysWord
   }
   private generateWordHash() {
@@ -36,10 +37,8 @@ class WordGenerator {
       throw new Error('Failed to read random word from file')
     }
 
-    const wordHash = `${date}_${word}`
-    this.wordHash = wordHash
+    this.wordHash = `${date}_${word}`
     this.todaysWord = word
-    return wordHash
   }
 
   private getRandomWordFromFile() {
@@ -58,4 +57,4 @@ class WordGenerator {
   }
 }
 
-export const wordIntance = WordGenerator.getInstance()
+export const wordInstance = WordGenerator.getInstance()
