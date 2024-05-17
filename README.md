@@ -6,8 +6,23 @@ Endpoint
 🚀 https://your-worker-url.workers.dev/api/word
 
 Response
+
 200 OK: Returns a JSON object with the word.
 
 {
   "word": "apple"
 }
+
+
+## Features
+
+- Generates a unique 5-letter word each day.
+- Stores the daily word in Cloudflare KV for consistent access.
+- Built with a lightweight and fast stack using HONO and Bun.
+
+## Technologies Used
+
+- **Cloudflare Workers**: Serverless execution environment for running JavaScript.
+- **HONO**: Fast and simple web framework for Cloudflare Workers.
+- **Bun**: JavaScript runtime that serves as an alternative to Node.js.
+- **Cloudflare KV**: Key-value storage system provided by Cloudflare for globally distributed data storage.
